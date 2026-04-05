@@ -260,6 +260,27 @@ select:focus { border-color:var(--navy); }
   font-size:var(--fs-sm); border-radius:5px;
 }
 .btn-edit:hover { background:var(--navy3); }
+.btn-des {
+  background:transparent; color:var(--green);
+  border:1px solid rgba(22,163,74,.3); padding:4px 9px;
+  font-size:var(--fs-sm); border-radius:5px; cursor:pointer;
+  min-height:30px; transition:all .15s;
+}
+.btn-des:hover { background:var(--green-bg); border-color:var(--green); }
+.btn-des.ativo {
+  background:var(--green-bg); color:var(--green);
+  border-color:var(--green); font-weight:700;
+}
+/* Linha desembarcada — visual atenuado */
+tr.item-desembarcado td { opacity:.5; }
+tr.item-desembarcado .btn-des.ativo { opacity:1; }
+tr.item-desembarcado td.td-desc span::after {
+  content: ' — DESEMBARCADO';
+  font-size:9px; font-weight:700; color:var(--green);
+  background:var(--green-bg); border-radius:4px;
+  padding:1px 5px; margin-left:6px; letter-spacing:.04em;
+  vertical-align:middle; opacity:1 !important;
+}
 .btn-del {
   background:transparent; color:var(--danger);
   border:1px solid rgba(185,28,28,.25); padding:4px 9px;
@@ -591,11 +612,19 @@ tbody td {
    FOOTER
 ══════════════════════════════════════════════════════════════ */
 footer {
-  text-align:center; padding:14px 20px;
-  font-family:var(--font-mono); font-size:var(--fs-sm);
-  color:var(--text3); border-top:1px solid var(--border);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:6px; padding:14px 32px; border-top:1px solid var(--border);
   margin-top:20px; background:var(--white);
 }
+footer .footer-logo img { height:28px; opacity:.7; }
+footer .footer-dev {
+  font-family:var(--font-ui); font-size:var(--fs-xs);
+  color:var(--text3);
+}
+footer .footer-dev a {
+  color:var(--navy); text-decoration:none; font-weight:600;
+}
+footer .footer-dev a:hover { text-decoration:underline; }
 .today-badge {
   background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2);
   border-radius:6px; padding:4px 10px;
@@ -867,6 +896,10 @@ footer {
         <option value="nd">Sem data</option>
       </select>
       <div class="count-badge">Exibindo <span id="countBadge">—</span> itens</div>
+      <button class="btn btn-ghost" onclick="toggleDesembFilter(this)" id="btn-desemb-filter" title="Mostrar apenas itens desembarcados">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>
+        Desembarcados
+      </button>
       <button class="btn btn-ghost" onclick="toggleDupFilter(this)" id="btn-dup-filter" title="Mostrar apenas itens com NS/TAG ou NP duplicados">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
         Duplicados
@@ -1160,7 +1193,14 @@ footer {
   </div>
 </main>
 
-<footer>LISMAT — MERO IV &nbsp;|&nbsp; NS-39 ITH MRO35DA &nbsp;|&nbsp; DPR 28/03/2026 &nbsp;|&nbsp; SLB One Subsea</footer>
+<footer>
+  <div class="footer-logo">
+    <img src="https://www.onesubsea.slb.com/-/media/onesubseajv/images/logos/jv_mainlogo.svg" alt="SLB OneSubsea">
+  </div>
+  <div class="footer-dev">
+    Desenvolvido por: <a href="mailto:ivieira5@slb.com">ivieira5@slb.com</a>
+  </div>
+</footer>
 
 <script>
 const SEED=[
@@ -2657,7 +2697,7 @@ function renderTable(){
     const dupNs = items.filter(x=>x.id!==item.id&&(item.ns||'').trim()&&(x.ns||'').trim().toLowerCase()===(item.ns||'').trim().toLowerCase()).length > 0;
     const dupNp = items.filter(x=>x.id!==item.id&&(item.np||'').trim()&&(x.np||'').trim().toLowerCase()===(item.np||'').trim().toLowerCase()).length > 0;
     const dupBadge = (dupNs||dupNp) ? `<span title="NS/TAG ou NP duplicado" style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:var(--amber);color:#fff;font-size:9px;font-weight:700;margin-left:4px;cursor:help;flex-shrink:0;">!</span>` : '';
-    return`<tr style="${rs}">
+    return`<tr style="${rs}" class="${item.desembarcado?'item-desembarcado':''}">
       <td>${catBadge(item.categoria)}${dupBadge}</td>
       <td class="td-desc"><span>${item.descricao}</span>${item.dimensao?`<small>Dim: ${item.dimensao}</small>`:''}${item.peso?`<small>Peso: ${item.peso}</small>`:''}</td>
       <td class="td-mono" style="font-weight:700;color:var(--navy)">${item.qtd||'<span style="color:var(--text-dim)">—</span>'}</td>
@@ -2669,7 +2709,14 @@ function renderTable(){
       <td>${lingDias}</td>
       <td class="td-mono">${item.idLingada||'—'}</td>
       <td class="rt-cell">${item.rtEmb||'—'}</td>
-      <td><div class="td-actions"><button class="btn btn-edit" onclick="openModalEdit(${item.id})">✏ Editar</button><button class="btn btn-del" onclick="askDelete(${item.id})">✕</button></div></td>
+      <td><div class="td-actions">
+        <button class="btn btn-des ${item.desembarcado?'ativo':''}" onclick="toggleDesembarcado(${item.id})" title="${item.desembarcado?'Desembarcado — clique para desfazer':'Marcar como desembarcado'}">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>
+          ${item.desembarcado?'Desemb.':'Desemb.'}
+        </button>
+        <button class="btn btn-edit" onclick="openModalEdit(${item.id})">✏ Editar</button>
+        <button class="btn btn-del" onclick="askDelete(${item.id})">✕</button>
+      </div></td>
     </tr>`;
   }).join('');
 }
@@ -3324,6 +3371,11 @@ function applyFilters(){
     const mst = statusSel ? s===statusSel : (activeFilter==='all' || s===activeFilter);
     return ms && mc && mst;
   });
+  // Filtro de desembarcados
+  if(showOnlyDesemb){
+    filtered = filtered.filter(it => it.desembarcado === true);
+  }
+
   // Filtro de duplicados
   if(showOnlyDups){
     const nsSet = {}, npSet = {};
@@ -3609,6 +3661,16 @@ function saveItem(){
   saveData(); closeModal(); updateKPIs(); applyFilters();
 }
 
+// ─── Filtro de desembarcados ─────────────────────────────────────────────────
+let showOnlyDesemb = false;
+function toggleDesembFilter(btn){
+  showOnlyDesemb = !showOnlyDesemb;
+  btn.style.background  = showOnlyDesemb ? 'var(--green-bg)' : '';
+  btn.style.color       = showOnlyDesemb ? 'var(--green)'    : '';
+  btn.style.borderColor = showOnlyDesemb ? 'var(--green)'    : '';
+  applyFilters();
+}
+
 // ─── Filtro de duplicados ────────────────────────────────────────────────────
 let showOnlyDups = false;
 function toggleDupFilter(btn){
@@ -3621,6 +3683,17 @@ function toggleDupFilter(btn){
     const count = filtered.length;
     showToast(count ? `${count} item(s) com duplicidade encontrado(s).` : 'Nenhum duplicado encontrado.', count ? 'warn' : 'info');
   }
+}
+
+// ─── Desembarque ─────────────────────────────────────────────────────────────
+function toggleDesembarcado(id){
+  const idx = items.findIndex(i=>i.id===id);
+  if(idx === -1) return;
+  items[idx].desembarcado = !items[idx].desembarcado;
+  const status = items[idx].desembarcado ? 'Desembarcado' : 'Desmarcado';
+  saveData();
+  applyFilters();
+  showToast(`${items[idx].descricao} — ${status}.`, items[idx].desembarcado?'success':'info');
 }
 
 // ─── Delete ───────────────────────────────────────────────────────────────────
@@ -3699,7 +3772,7 @@ function exportExcelCompleto(){
 
   const kpiBlock = `
   <table style="width:100%;border-collapse:collapse;margin-bottom:4px;">
-    ${cabecalho('LISMAT — LISTA DE MATERIAIS MERO IV / NS-39', 5)}
+    ${cabecalho('LISMAT — LISTA DE MATERIAIS', 5)}
     <tr><td colspan="5" style="height:10px;border:none"></td></tr>
     <tr>
       <td style="width:20%;padding:12px;background:#EEF3FB;border:1px solid #c0cce8;text-align:center;">
@@ -3884,7 +3957,7 @@ function exportExcelCompleto(){
         <img src="${logoUrl}" width="160" style="filter:brightness(0) invert(1);vertical-align:middle;">
         <span style="color:#fff;font-size:18px;font-weight:700;margin-left:20px;vertical-align:middle;letter-spacing:-.01em;">
           Lista de Materiais — SCVS &nbsp;
-          <span style="font-size:11px;color:rgba(255,255,255,.6);font-weight:400">MERO IV &nbsp;|&nbsp; NS-39 ITH MRO35DA &nbsp;|&nbsp; ${today}</span>
+          <span style="font-size:11px;color:rgba(255,255,255,.6);font-weight:400"> ${today}</span>
         </span>
       </td>
     </tr>
@@ -3917,7 +3990,7 @@ function exportExcelCompleto(){
   <table style="width:100%;border-collapse:collapse;">
     <tr>
       <td style="text-align:center;padding:10px;font-size:10px;color:#9ca3af;border-top:1px solid #e5e7eb;">
-        LISMAT — MERO IV &nbsp;|&nbsp; NS-39 ITH MRO35DA &nbsp;|&nbsp; SLB OneSubsea &nbsp;|&nbsp; Gerado em ${today}
+        LISMAT — Gerado em ${today}
       </td>
     </tr>
   </table>
