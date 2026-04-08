@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+<html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -694,13 +694,6 @@ footer .footer-dev a:hover { text-decoration:underline; }
 
 </style>
 
-<!--[if gte mso 9]><xml>
-<mso:CustomDocumentProperties>
-<mso:MediaServiceImageTags msdt:dt="string"></mso:MediaServiceImageTags>
-<mso:lcf76f155ced4ddcb4097134ff3c332f msdt:dt="string"></mso:lcf76f155ced4ddcb4097134ff3c332f>
-<mso:TaxCatchAll msdt:dt="string"></mso:TaxCatchAll>
-</mso:CustomDocumentProperties>
-</xml><![endif]-->
 <title></title></head>
 <body>
 
@@ -765,14 +758,6 @@ footer .footer-dev a:hover { text-decoration:underline; }
     <span id="todayBadge" class="today-badge" style="font-size:10px;color:rgba(255,255,255,.6);font-family:'JetBrains Mono',monospace;"></span>
   </div>
   <div class="header-right" style="gap:8px;">
-    <!-- DB Status Badge -->
-    <div id="db-status" title="Clique para abrir no browser via SharePoint" style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:4px 10px;font-size:10px;color:rgba(255,255,255,.7);font-family:'JetBrains Mono',monospace;cursor:pointer;" onclick="showSPHelp()">
-      <span id="db-dot" style="width:7px;height:7px;border-radius:50%;background:#6b7280;display:inline-block;transition:background .3s;"></span>
-      <span id="db-label">Carregando...</span>
-    </div>
-    <button id="btn-sync-now" style="display:none;background:rgba(255,255,255,.12);color:rgba(255,255,255,.85);border:1px solid rgba(255,255,255,.2);font-size:11px;font-weight:600;padding:6px 12px;border-radius:7px;cursor:pointer;display:none;align-items:center;gap:5px;" onclick="SP.syncFromCloud()" title="Sincronizar agora com SharePoint">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-      Sync
     </button>
     <!-- Backup JSON -->
     <button class="btn" style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.85);border:1px solid rgba(255,255,255,.2);font-size:11px;font-weight:600;padding:7px 13px;border-radius:7px;cursor:pointer;display:flex;align-items:center;gap:6px;" onclick="exportBackupJSON()" title="Baixar backup completo em JSON">
